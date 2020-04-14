@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api, exceptions
 from psycopg2 import IntegrityError
+from datetime import timedelta
 import time
 
 def get_uid(self, *a):
@@ -63,10 +64,10 @@ class Session(models.Model):
 
     #Cuando se hace un Many2one se muestra esta campo
     name = fields.Char(required=True)
-    start_date = fields.Date(default=fields.Date.today())
+    
     #datetime_test = fields.Datetime(default=lambda *a: time.strftime('%Y-%m-%d %H:%M:%S'))
     datetime_test = fields.Datetime(default=fields.Datetime.now())
-    duration = fields.Float(digits=(6,2), help="Duration in days")
+    
     seats = fields.Integer(string="Number of seats")
     instructor_id = fields.Many2one('res.partner', string="Instructor", 
         domain=['|',('instructor', '=', True), 
@@ -80,8 +81,54 @@ class Session(models.Model):
     taken_seats = fields.Float(compute='_taken_seats', store=True)
     #campo para borrado logico
     active = fields.Boolean(default=True)
+    
 
+    #--------necesario para la vista calendar--------
+    start_date = fields.Date(default=fields.Date.today())
+    duration = fields.Float(digits=(6,2), help="Duration in days")
+    #calculamos la fecha fin
+    end_date = fields.Date(store=True, compute='_get_end_date',
+                            inverse="_set_end_date")
+    
+    @api.depends('start_date', 'duration')
+    def _get_end_date(self):
+        for record in self.filtered('start_date'):
+            start_date = fields.Date.from_string(record.start_date)
+            record.end_date = start_date + timedelta(days=record.duration, seconds=-1)
+            #(start_date + timedelta(days=record.duration, seconds=-1)).strftime('%A')
 
+    def _set_end_date(self):
+        for record in self.filtered('start_date'):
+            start_date = fields.Date.from_string(record.start_date)
+            end_date = fields.Date.from_string(record.end_date)
+            record.duration = (end_date - start_date).days + 1
+
+    #----------necesario para la vista graph----------
+    attendees_count = fields.Integer(
+        string="Attendees count", compute='_get_attendees_count', store=True)
+
+    @api.depends('attendee_ids')
+    def _get_attendees_count(self):
+        for record in self:
+            record.attendees_count = len(record.attendee_ids)
+
+    #----------necesario para la vista kanbah----------
+    color = fields.Integer()
+
+    #----------necesario para la vista gant----------
+    hours = fields.Float(string="Duration in hours",
+                         compute='_get_hours', inverse='_set_hours')
+
+    @api.depends('duration')
+    def _get_hours(self):
+        for record in self:
+            record.hours = record.duration * 24
+
+    def _set_hours(self):
+        for record in self:
+            record.duration = record.hours / 24
+
+    
 
     #self._fields = obtengo los campos y sus nombres del model
     #self._fields.keys() = obtengo los campos del modelo

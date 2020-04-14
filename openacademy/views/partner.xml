@@ -31,6 +31,7 @@
     <record model="ir.actions.act_window" id="contact_list_action">
       <field name="name">Contacts</field>
       <field name="res_model">res.partner</field>
+      <!-- vista kanban = vista en thumbnails -->
       <field name="view_mode">tree,form,kanban</field>
     </record>
 

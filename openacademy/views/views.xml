@@ -49,6 +49,13 @@
             <search string="Course Search">
                 <field name="name" string="Name Search"/>
                 <field name="description"/>
+                <!-- uid es el id del usuario actual -->
+                <filter name="my_courses" string="My Courses"
+                        domain="[('responsible_id', '=', uid)]"/>
+                <group string="Group By">
+                    <filter name="by_responsible" string="Responsible"
+                            context="{'group_by': 'responsible_id'}"/>
+                </group>
             </search>
         </field>
     </record>
@@ -58,6 +65,8 @@
       <field name="name">Cursese</field>
       <field name="res_model">openacademy.course</field>
       <field name="view_mode">tree,form</field>
+      <!-- Pone un filtro por default -->
+      <field name="context" eval="{'search_default_my_courses': 1}"/>
       <field name="help" type="html">
         <p class="oe_view_nocontent_create">Create the first couses</p>
       </field>
@@ -83,14 +92,16 @@
                     <group>
                         <field name="name"/>
                         <field name="start_date"/>
-                        <field name="datetime_test"/>
                         <field name="duration"/>
+                        <field name="end_date"/>
                         <field name="seats"/>
                         <field name="taken_seats" widget="progressbar"/>
-                        <field name="instructor_id"/>
-                        <field name="course_id"/>
+                        <field name="instructor_id" widget="selection"/>
+                        <!-- no create - quita la liga para crear, no open quita la liga para ver el detalle d -->
+                        <field name="course_id" options="{'no_create':True, 'no_open':True}"/>
                         <label for="attendee_ids"/>
                         <field name="attendee_ids" nolabel="1"/>
+                        <field name="datetime_test"/>
                         <field name="active"/>
                     </group>
                 </sheet>
@@ -103,24 +114,115 @@
         <field name="name">session.tree</field>
         <field name="model">openacademy.session</field>
         <field name="arch" type="xml">
-            <tree string="Session Form">
+            <!-- se pone una clase dependiendo de la condicion -->
+            <!-- <tree string="Session Tree" decoration-info="duration &lt; 5" decoration-danger="duration &gt; 15" editable="bottom"> -->
+            <tree string="Session Tree" decoration-info="duration &lt; 5" decoration-danger="duration &gt; 15">
                 <field name="name"/>
                 <field name="start_date"/>
-                <field name="duration"/>
+                <field name="duration" invisible="1"/>
+                <field name="end_date"/>
                 <field name="seats"/>
                 <field name="taken_seats" widget="progressbar"/>
-                <field name="instructor_id"/>
+                <!-- muestra un select en lugar de  las opciones de crear -->
+                <field name="instructor_id" widget="selection"/>
                 <field name="course_id"/>
             </tree>
         </field>
     </record>
 
+    <!-- calendar view -->
+    <!-- nos demanda las fechas de inicio y fin -->
+    <record model="ir.ui.view" id="session_calendar_view">
+        <field name="name">session.calendar</field>
+        <field name="model">openacademy.session</field>
+        <field name="arch" type="xml">
+            <calendar string="Session Calendar" date_start="start_date" date_stop="end_date" color="instructor_id">
+                <field name="name"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="session_gantt_view">
+        <field name="name">session.gantt</field>
+        <field name="model">openacademy.session</field>
+        <field name="arch" type="xml">
+            <gantt string="Session Gantt" date_start="start_date"
+                    default_group_by='instructor_id' date_stop="end_date">
+            </gantt>
+        </field>
+    </record>
+
+    <!-- Graph view -->
+    <!-- Nos demande el measure y por que es lo que se agrupara -->
+    <record model="ir.ui.view" id="openacademy_session_graph_view">
+        <field name="name">openacademy.session.graph</field>
+        <field name="model">openacademy.session</field>
+        <field name="arch" type="xml">
+            <graph string="Participations by Courses">
+                <!-- Por default pone todos como tipo row -->
+                <field name="course_id" type="row"/>
+                <field name="attendees_count" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- kanban view -->
+    <!-- tienes que tener el campo de color -->
+    <record model="ir.ui.view" id="view_openacad_session_kanban">
+        <field name="name">openacad.session.kanban2</field>
+        <field name="model">openacademy.session</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="instructor_id">
+                <field name="color"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div
+                                t-attf-class="oe_kanban_color_{{kanban_getcolor(record.color.raw_value)}}
+                                              oe_kanban_global_click_edit oe_semantic_html_override
+                                              oe_kanban_card {{record.group_fancy==1 ? 'oe_kanban_card_fancy' : ''}}">
+                            <div class="oe_dropdown_kanban">
+                                <!-- dropdown menu -->
+                                <div class="oe_dropdown_toggle">
+                                    <i class="fa fa-bars fa-lg"/>
+                                    <ul class="oe_dropdown_menu">
+                                        <li>
+                                            <a type="delete">Delete</a>
+                                        </li>
+                                        <li>
+                                            <ul class="oe_kanban_colorpicker"
+                                                data-field="color"/>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="oe_clear"></div>
+                            </div>
+                            <div t-attf-class="oe_kanban_content">
+                                <!-- Solo modificas esta parte es HTML puro -->
+                                Session name:
+                                <field name="name"/>
+                                <br/>
+                                Start date:
+                                <field name="start_date"/>
+                                <br/>
+                                duration:
+                                <field name="duration"/>
+                                 <field name="instructor_id"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    
+
     <!-- actions opening views on models -->
     <record model="ir.actions.act_window" id="session_list_action">
       <field name="name">Session</field>
       <field name="res_model">openacademy.session</field>
-      <field name="view_type">form</field>
-      <field name="view_mode">tree,form</field>
+      <!-- <field name="view_type">form</field> -->
+      <field name="view_mode">tree,form,calendar,gantt,graph,kanban</field>
     </record>
 
     <menuitem name="Session" id="session_menu" parent="openacademy_menu" action="session_list_action"/>
