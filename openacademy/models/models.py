@@ -24,6 +24,7 @@ class Course(models.Model):
         index=True, ondelete='set null',
         #default=lambda self, *a: self.env.uid)
         default=get_uid)
+    #campo virtual no existe en la BDD - Existe en la tabla sessions
     session_ids = fields.One2many('openacademy.session', 'course_id')
 
     _sql_constraints = [
@@ -55,10 +56,12 @@ class Course(models.Model):
 
 
 
-
+#nombre del modelo en python
 class Session(models.Model):
+    #nombre del modelo en odoo@
     _name = 'openacademy.session'
 
+    #Cuando se hace un Many2one se muestra esta campo
     name = fields.Char(required=True)
     start_date = fields.Date(default=fields.Date.today())
     #datetime_test = fields.Datetime(default=lambda *a: time.strftime('%Y-%m-%d %H:%M:%S'))
@@ -68,11 +71,14 @@ class Session(models.Model):
     instructor_id = fields.Many2one('res.partner', string="Instructor", 
         domain=['|',('instructor', '=', True), 
         ('category_id.name', 'like', 'Teacher')] )
+    #crea un select para se seleccione el curso
     course_id = fields.Many2one('openacademy.course', ondelete='cascade',
                                  string="Course", required=True)
+    #crea una tabla intermedia
     attendee_ids = fields.Many2many('res.partner', string="Attendees")
     #crea el campo calculado en la tabla
     taken_seats = fields.Float(compute='_taken_seats', store=True)
+    #campo para borrado logico
     active = fields.Boolean(default=True)
 
 

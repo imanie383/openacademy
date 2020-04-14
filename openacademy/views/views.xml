@@ -13,7 +13,8 @@
                 </sheet>
                 <notebook>
                     <page string="Description">
-                        <field name="description"/>
+                        <field name="description" />
+                        <!-- <field name="description" readonly="True"/> -->
                     </page>
                     <page string="About">
                         This is a example of  notebook
