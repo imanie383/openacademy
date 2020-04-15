@@ -116,6 +116,7 @@
         <field name="arch" type="xml">
             <!-- se pone una clase dependiendo de la condicion -->
             <!-- <tree string="Session Tree" decoration-info="duration &lt; 5" decoration-danger="duration &gt; 15" editable="bottom"> -->
+            <!-- usar la pagina de scape xml para  -->
             <tree string="Session Tree" decoration-info="duration &lt; 5" decoration-danger="duration &gt; 15">
                 <field name="name"/>
                 <field name="start_date"/>

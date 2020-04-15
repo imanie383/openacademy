@@ -23,9 +23,10 @@
     # any module necessary for this one to work correctly
     'depends': ['base'],
 
-    # always loaded
+    # always loaded Importa el orden
     'data': [
-        # 'security/ir.model.access.csv',
+        'security/security.xml',
+        'security/ir.model.access.csv',
         'views/views.xml',
         'views/templates.xml',
         'views/partner.xml',
