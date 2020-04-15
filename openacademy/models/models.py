@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, exceptions
+# tuvimos que importar la funcion para que funcionara en el constraint _
+from odoo import models, fields, api, exceptions, _
 from psycopg2 import IntegrityError
 from datetime import timedelta
 import time
+#from odoo.tools.translate import _
 
 def get_uid(self, *a):
     return self.env.uid
@@ -38,15 +40,16 @@ class Course(models.Model):
          "The course title must be unique"),
     ]
 
+    #hay mas funciones basicas como create,browse, write
     #funcion para duplicar un registro
     def copy(self, default=None):
         if default is None:
             default = {}
-        copied_count = self.search_count([('name', 'ilike', 'Copy of %s%%' % (self.name))])
+        copied_count = self.search_count([('name', 'ilike', _('Copy of %s%%') % (self.name))])
         if not copied_count:
-            default['name'] = "Copy of %s" % (self.name)
+            default['name'] = _("Copy of %s") % (self.name)
         else:
-            default['name'] = "Copy of %s (%s)" % (self.name,copied_count)
+            default['name'] = _("Copy of %s (%s)") % (self.name,copied_count)
 
         #default['name'] = self.name + '_otro'
         try:
@@ -157,8 +160,8 @@ class Session(models.Model):
             selft.active = False
             return {
                 'warning': {
-                    'title': "Inconrrect 'seats' value",
-                    'message': "The number of available seats may not be negative"
+                    'title': _("Inconrrect 'seats' value"),
+                    'message': _("The number of available seats may not be negative")
                 }
             }
         #si cae en cualquier if, ahi termina el proceso, no se ejecuta el siguiente
@@ -167,8 +170,8 @@ class Session(models.Model):
             self.active = False
             return {
                 'warning': {
-                    'title': "Too many attendees",
-                    'message': "Increase seats or remove excess attendees"
+                    'title': _("Too many attendees"),
+                    'message': _("Increase seats or remove excess attendees")
                 }
             }
         self.active = True
@@ -179,8 +182,4 @@ class Session(models.Model):
         #puede omitir el lamnda y poner solo el campo
         for record in self.filtered('instructor_id'):
             if record.instructor_id in record.attendee_ids:
-                raise exceptions.ValidationError("A session's instructor can't be an attendee")
-
-
-
-
+                raise exceptions.ValidationError(_("A session's instructor can't be an attendee"))
