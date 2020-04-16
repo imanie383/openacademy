@@ -31,6 +31,7 @@
         'views/templates.xml',
         'views/partner.xml',
         'views/wizard.xml',
+        'report/report.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
