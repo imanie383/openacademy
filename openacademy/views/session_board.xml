@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<odoo>
+
+        <record model="ir.actions.act_window" id="act_session_graph">
+            <field name="name">Attendees by course</field>
+            <field name="res_model">openacademy.session</field>
+            <field name="view_type">form</field>
+            <!-- solo hay un modo a la vez -->
+            <field name="view_mode">graph</field>
+            <!-- se le agrefa el view_id con el nombre de la referencia -->
+            <field name="view_id"
+                   ref="openacademy.openacademy_session_graph_view"/>
+        </record>
+        <record model="ir.actions.act_window" id="act_session_calendar">
+            <field name="name">Sessions</field>
+            <field name="res_model">openacademy.session</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">calendar</field>
+            <field name="view_id" ref="openacademy.session_calendar_view"/>
+        </record>
+        <record model="ir.actions.act_window" id="act_course_list">
+            <field name="name">Courses</field>
+            <field name="res_model">openacademy.course</field>
+            <field name="view_type">form</field>
+            <!-- al no poner un view_id se usan las default -->
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="board_session_form">
+            <field name="name">Session Dashboard Form</field>
+            <field name="model">board.board</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Session Dashboard">
+                    <board style="2-1">
+                        <column>
+                            <!-- el name es el id del recor definido arriba -->
+                            <action
+                                string="Attendees by course"
+                                name="%(act_session_graph)d"
+                                height="150"
+                                width="510"/>
+                            <action
+                                string="Sessions"
+                                name="%(act_session_calendar)d"/>
+                        </column>
+                        <column>
+                            <action
+                                string="Courses"
+                                name="%(act_course_list)d"/>
+                        </column>
+                    </board>
+                </form>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="open_board_session">
+          <field name="name">Session Dashboard</field>
+          <field name="res_model">board.board</field>
+          <field name="view_type">form</field>
+          <field name="view_mode">form</field>
+          <field name="usage">menu</field>
+          <!-- se pone el view_id y el ref= id del tablero creado -->
+          <field name="view_id" ref="board_session_form"/>
+        </record>
+
+        <!-- el action es el ad del record anterior -->
+        <!-- el parent puede cambiar Buscar en interfaz de ususarios y buscar el menu del tablero/board-->
+        <menuitem
+            name="Session Dashboard" parent="base.menu_reporting_dashboard"
+            action="open_board_session"
+            sequence="1"
+            id="menu_board_session" icon="terp-graph"/>
+
+</odoo>

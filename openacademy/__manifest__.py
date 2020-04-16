@@ -21,7 +21,8 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base'],
+    'depends': ['base', 'board'],
+    #actulizar lista de aplicaciones desde la app. modeo debug
 
     # always loaded Importa el orden
     'data': [
@@ -31,6 +32,7 @@
         'views/templates.xml',
         'views/partner.xml',
         'views/wizard.xml',
+        'views/session_board.xml',
         'report/report.xml',
     ],
     # only loaded in demonstration mode
