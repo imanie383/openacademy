@@ -1,0 +1,41 @@
+language: python
+
+sudo: false
+
+python:
+  - "2.7"
+
+addons:
+  apt:
+    packages:
+      - expect-dev  # provides unbuffer utility
+      - python-lxml  # because pip installation is slow
+      - python-simplejson
+      - python-serial
+      - python-yaml
+
+virtualenv:
+  system_site_packages: true
+
+
+env:
+  global:
+  - VERSION="8.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
+
+  matrix:
+  - LINT_CHECK="1" ODOO_LINT=1
+  - TESTS="1" ODOO_REPO="odoo/odoo" INCLUDE=base
+
+install:
+  - git clone --single-branch --depth=1 https://github.com/vauxoo/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
+  - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
+  - travis_install_nightly
+
+script:
+  -    df -H    
+  -    travis_run_tests    
+  -       df -H
+
+# Don't exists a module for get full coveralls data.
+# after_success:
+#   - travis_after_tests_success
