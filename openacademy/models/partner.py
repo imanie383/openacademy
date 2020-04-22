@@ -4,6 +4,7 @@ from odoo import models, fields, api
 
 class Parter(models.Model):
     #_name = 'openacademy.partner'
+    # esta heredando esta clase y modificando el modelo base
     _inherit = 'res.partner'
 
     instructor = fields.Boolean(default=False)
